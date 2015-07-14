@@ -166,7 +166,7 @@ public class BezierChart extends View {
 			maxY = point.y > maxY ? point.y : maxY;
 		}
 		
-		float scaleY = chartHeight / (maxY*1.5F);
+		float scaleY = chartHeight*1.0F / (maxY);
 		float part = chartWidth / (mPoints.size()-1);
 		for(int i=0; i<mPoints.size(); i++){
 			Point point = new Point();
@@ -189,7 +189,11 @@ public class BezierChart extends View {
 		public Point(){}
 	}
 	
-	
+	public void reloadParameter(float a, float b){
+		this.a = a;
+		this.b = b;
+		invalidate();
+	}
 }
 
 
