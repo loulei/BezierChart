@@ -109,7 +109,6 @@ public class BezierChart extends View {
 	private void drawGrid(Canvas canvas, int width){
 		canvas.drawRect(chartRect, gridPaint);
 		int gridCount = mLabels.length-1;
-		System.out.println("count:"+gridCount);
 		float part = width*1.0F / gridCount;
 		for(int i=1; i<=gridCount; i++){
 			float x = chartRect.left + i*part;
@@ -133,7 +132,7 @@ public class BezierChart extends View {
 		}
 		
 		float scaleY = chartHeight / maxY;
-		float part = chartWidth / mPoints.size();
+		float part = chartWidth / (mPoints.size()-1);
 		for(int i=0; i<mPoints.size(); i++){
 			Point point = new Point();
 			point.x = chartRect.left + i*part;
