@@ -35,11 +35,14 @@ public class BezierChart extends View {
 	private Paint chartBgPaint = new Paint();
 	private Paint gridPaint = new Paint();
 	private Paint labelPaint = new Paint();
-	private Paint linePaint = new Paint();
+	private Paint bezierPaint = new Paint();
+	private Paint straightPaint = new Paint();
 	private List<Point> mPoints;
 	private String[] mLabels;
 	private Point[] adjustedPoints;
 	private Path path;
+	private float a = 1.0F/4;
+	private float b = 1.0F/4;
 	
 	{
 		chartBgPaint.setColor(Color.CYAN);
@@ -51,10 +54,14 @@ public class BezierChart extends View {
 		gridPaint.setStyle(Style.STROKE);
 		gridPaint.setStrokeWidth(1);
 		gridPaint.setAntiAlias(true);
-		linePaint.setColor(Color.RED);
-		linePaint.setStyle(Style.STROKE);
-		linePaint.setStrokeWidth(2);
-		linePaint.setAntiAlias(true);
+		bezierPaint.setColor(Color.RED);
+		bezierPaint.setStyle(Style.STROKE);
+		bezierPaint.setStrokeWidth(1);
+		bezierPaint.setAntiAlias(true);
+		straightPaint.setStyle(Style.STROKE);
+		straightPaint.setColor(Color.BLUE);
+		straightPaint.setAntiAlias(true);
+		straightPaint.setStrokeWidth(1);
 		path = new Path();
 	}
 	
@@ -122,7 +129,35 @@ public class BezierChart extends View {
 		for(int i=1; i<adjustedPoints.length; i++){
 			path.lineTo(adjustedPoints[i].x, adjustedPoints[i].y);
 		}
-		canvas.drawPath(path, linePaint);
+		canvas.drawPath(path, straightPaint);
+		path.reset();
+		path.moveTo(adjustedPoints[0].x, adjustedPoints[0].y);
+		for(int i=0; i<adjustedPoints.length-1; i++){
+			float ctrlX1;
+			float ctrlY1;
+			float ctrlX2;
+			float ctrlY2;
+			
+			if(i == 0)
+			{
+				ctrlX1 = adjustedPoints[i].x + a*(adjustedPoints[i+1].x - adjustedPoints[i].x);
+				ctrlY1 = adjustedPoints[i].y + a*(adjustedPoints[i+1].y - adjustedPoints[i].y);
+				ctrlX2 = adjustedPoints[i+1].x - b*(adjustedPoints[i+2].x - adjustedPoints[i].x);
+				ctrlY2 = adjustedPoints[i+1].y - b*(adjustedPoints[i+2].y - adjustedPoints[i].y);
+			}else if(i == (adjustedPoints.length - 2)){
+				ctrlX1 = adjustedPoints[i].x + a*(adjustedPoints[i+1].x - adjustedPoints[i-1].x);
+				ctrlY1 = adjustedPoints[i].y + a*(adjustedPoints[i+1].y - adjustedPoints[i-1].y);
+				ctrlX2 = adjustedPoints[i+1].x - b*(adjustedPoints[i+1].x - adjustedPoints[i].x);
+				ctrlY2 = adjustedPoints[i+1].y - b*(adjustedPoints[i+1].y - adjustedPoints[i].y);
+			}else{
+				ctrlX1 = adjustedPoints[i].x + a*(adjustedPoints[i+1].x - adjustedPoints[i-1].x);
+				ctrlY1 = adjustedPoints[i].y + a*(adjustedPoints[i+1].y - adjustedPoints[i-1].y);
+				ctrlX2 = adjustedPoints[i+1].x - b*(adjustedPoints[i+2].x - adjustedPoints[i].x);
+				ctrlY2 = adjustedPoints[i+1].y - b*(adjustedPoints[i+2].y - adjustedPoints[i].y);
+			}
+			path.cubicTo(ctrlX1, ctrlY1, ctrlX2, ctrlY2, adjustedPoints[i+1].x, adjustedPoints[i+1].y);
+		}
+		canvas.drawPath(path, bezierPaint);
 	}
 	
 	private void adjustPoints(int chartWidth, int chartHeight){
@@ -131,7 +166,7 @@ public class BezierChart extends View {
 			maxY = point.y > maxY ? point.y : maxY;
 		}
 		
-		float scaleY = chartHeight / maxY;
+		float scaleY = chartHeight / (maxY*1.5F);
 		float part = chartWidth / (mPoints.size()-1);
 		for(int i=0; i<mPoints.size(); i++){
 			Point point = new Point();
